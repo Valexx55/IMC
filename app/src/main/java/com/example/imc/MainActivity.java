@@ -3,8 +3,14 @@ package com.example.imc;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,6 +21,8 @@ import java.text.NumberFormat;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String URL_IMC = "https://es.wikipedia.org/wiki/%C3%8Dndice_de_masa_corporal";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Log.d("IMC", "onCreate");
+
+        ImageView imageView = findViewById(R.id.imageAsociada);
+        registerForContextMenu(imageView);
 
         if(savedInstanceState==null){
             Log.d("IMC", "No hay nada guardado, entró por 1er vez");
@@ -35,6 +46,27 @@ public class MainActivity extends AppCompatActivity {
             textoCabecera.setText(getResources().getString(R.string.result));
         }
     }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu_contextual, menu);
+
+    }
+
+        @Override
+        public boolean onContextItemSelected(@NonNull MenuItem item) {
+            //if (item.getTitle().equals("BORRAR"))
+            if (item.getItemId()==R.id.borrar)
+            {
+                Log.d("MIAPP", "Ha tocado el menu flotante borrar");
+                //tengo que obtener la imagen y ponerla a vacío
+                ImageView imageView = findViewById(R.id.imageAsociada);
+                imageView.setVisibility(View.INVISIBLE);
+            }
+            return super.onContextItemSelected(item);
+        }
 
     public void calcularIMC(View view) {
 
@@ -118,5 +150,29 @@ public class MainActivity extends AppCompatActivity {
         resultado.setText("");
         imagen_asociada.setImageResource(0);
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Log.d("MIAPP", "Tocó la info");
+        Intent i = new Intent();
+        i.setData(Uri.parse(URL_IMC));
+        i.setAction(Intent.ACTION_VIEW);
+        if (i.resolveActivity(getPackageManager())!=null)
+        {
+            startActivity(i);
+        }
+
+//        Intent intent_explicito = new Intent(this, WebActivity.class);
+//        startActivity(intent_explicito);
+//
+        return super.onOptionsItemSelected(item);
     }
 }
